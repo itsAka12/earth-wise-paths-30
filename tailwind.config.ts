@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,29 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+                earthwise: {
+                    green: {
+                        light: '#8BC34A',
+                        DEFAULT: '#4CAF50',
+                        dark: '#2E7D32',
+                    },
+                    blue: {
+                        light: '#90CAF9',
+                        DEFAULT: '#2196F3',
+                        dark: '#1565C0',
+                    },
+                    brown: {
+                        light: '#D7CCC8',
+                        DEFAULT: '#795548',
+                        dark: '#4E342E',
+                    },
+                    neutral: {
+                        light: '#F5F5F5',
+                        DEFAULT: '#9E9E9E',
+                        dark: '#424242',
+                    }
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +107,22 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+                'float': {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-10px)' },
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+                'float': 'float 5s ease-in-out infinite'
+			},
+            backgroundImage: {
+                'hero-pattern': "url('/src/assets/hero-pattern.svg')",
+                'gradient-primary': 'linear-gradient(135deg, #8BC34A 0%, #4CAF50 100%)',
+                'gradient-secondary': 'linear-gradient(135deg, #90CAF9 0%, #2196F3 100%)',
+            }
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
