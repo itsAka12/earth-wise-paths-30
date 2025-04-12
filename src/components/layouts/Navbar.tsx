@@ -2,10 +2,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Leaf } from 'lucide-react';
+import { Menu, X, Leaf, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  // Get username from email (or use email if no username)
+  const username = user?.email ? user.email.split('@')[0] : '';
+  const initials = username ? username.substring(0, 2).toUpperCase() : '';
 
   return (
     <nav className="bg-white shadow-sm py-4 px-6 md:px-10">
@@ -26,14 +33,30 @@ const Navbar = () => {
           <Link to="/dashboard" className="text-earthwise-neutral-dark hover:text-earthwise-green transition-colors">
             Dashboard
           </Link>
-          <div className="flex space-x-3">
-            <Button asChild variant="outline" className="border-earthwise-green text-earthwise-green hover:bg-earthwise-green-light hover:text-white">
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button asChild className="bg-earthwise-green hover:bg-earthwise-green-dark">
-              <Link to="/signup">Sign Up</Link>
-            </Button>
-          </div>
+          
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-3">
+              <span className="text-earthwise-neutral-dark">Hello, {username}</span>
+              <Button asChild variant="ghost" className="p-2">
+                <Link to="/profile">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-earthwise-green text-white text-xs">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex space-x-3">
+              <Button asChild variant="outline" className="border-earthwise-green text-earthwise-green hover:bg-earthwise-green-light hover:text-white">
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild className="bg-earthwise-green hover:bg-earthwise-green-dark">
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Navigation Toggle */}
@@ -70,23 +93,45 @@ const Navbar = () => {
             >
               Dashboard
             </Link>
-            <div className="flex flex-col space-y-2">
-              <Button 
-                asChild 
-                variant="outline" 
-                className="border-earthwise-green text-earthwise-green w-full justify-center"
-                onClick={() => setIsOpen(false)}
-              >
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button 
-                asChild 
-                className="bg-earthwise-green hover:bg-earthwise-green-dark w-full justify-center"
-                onClick={() => setIsOpen(false)}
-              >
-                <Link to="/signup">Sign Up</Link>
-              </Button>
-            </div>
+            
+            {isAuthenticated ? (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2 px-4 py-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-earthwise-green text-white text-xs">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-earthwise-neutral-dark">Hello, {username}</span>
+                </div>
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="border-earthwise-green text-earthwise-green w-full justify-center"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link to="/profile">View Profile</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col space-y-2">
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="border-earthwise-green text-earthwise-green w-full justify-center"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button 
+                  asChild 
+                  className="bg-earthwise-green hover:bg-earthwise-green-dark w-full justify-center"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
