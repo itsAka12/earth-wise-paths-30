@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { authService } from '@/services/api';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -46,18 +47,37 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       return;
     }
 
-    // Mock authentication for demo purposes
-    // In a real app, this would be replaced with actual auth service calls
-    setTimeout(() => {
-      toast({
-        title: type === 'login' ? "Logged in successfully" : "Account created successfully",
-        description: "Welcome to EarthWise Paths!",
-      });
+    try {
+      if (type === 'login') {
+        // Login user with our API service
+        const response = await authService.login(email, password);
+        
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome to EarthWise Paths!",
+        });
+      } else {
+        // Register user with our API service
+        const response = await authService.register(email, password);
+        
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to EarthWise Paths!",
+        });
+      }
       
       // Redirect to dashboard after successful login/signup
       navigate('/dashboard');
+    } catch (error) {
+      console.error('Authentication error:', error);
+      toast({
+        title: "Authentication error",
+        description: error.response?.data?.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
