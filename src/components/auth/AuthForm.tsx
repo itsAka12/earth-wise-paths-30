@@ -48,9 +48,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     }
 
     try {
+      console.log(`Attempting to ${type === 'login' ? 'login' : 'register'} with email: ${email}`);
+      
       if (type === 'login') {
         // Login user with our API service
         const response = await authService.login(email, password);
+        console.log('Login successful:', response);
         
         toast({
           title: "Logged in successfully",
@@ -58,7 +61,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         });
       } else {
         // Register user with our API service
+        console.log('About to call register API');
         const response = await authService.register(email, password);
+        console.log('Register API response:', response);
         
         toast({
           title: "Account created successfully",
@@ -68,11 +73,28 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       
       // Redirect to dashboard after successful login/signup
       navigate('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Authentication error:', error);
+      
+      // Add more detailed error logging
+      if (error.response) {
+        console.error('Server response data:', error.response.data);
+        console.error('Server response status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error setting up request:', error.message);
+      }
+      
+      // More user-friendly error message
+      const errorMsg = error.response?.data?.message || 
+                       (error.message === "Network Error" ? 
+                        "Cannot connect to server. Please check if the server is running." : 
+                        "Something went wrong. Please try again.");
+      
       toast({
         title: "Authentication error",
-        description: error.response?.data?.message || "Something went wrong. Please try again.",
+        description: errorMsg,
         variant: "destructive",
       });
     } finally {

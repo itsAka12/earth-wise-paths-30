@@ -2,7 +2,8 @@
 import axios from 'axios';
 
 // Make sure to use the correct server URL
-const API_URL = 'http://localhost:5000/api';
+// Using window.location.hostname ensures it works in development and production
+const API_URL = `http://${window.location.hostname}:5000/api`;
 
 // Create axios instance
 const api = axios.create({
@@ -40,16 +41,38 @@ export const authService = {
   register: async (email: string, password: string) => {
     try {
       console.log('Attempting to register with:', { email });
+      
+      // Log request configuration for debugging
+      console.log('API URL:', API_URL);
+      console.log('Registration endpoint:', '/auth/register');
+      
       const response = await api.post('/auth/register', { email, password });
       console.log('Registration response:', response.data);
       
       if (response.data.token) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+      } else {
+        console.warn('No token received in registration response');
       }
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error.response?.data || error.message);
+      console.error('Registration error details:');
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error data:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+      }
+      console.error('Error config:', error.config);
+      
       throw error;
     }
   },
