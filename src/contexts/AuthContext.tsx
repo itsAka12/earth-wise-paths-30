@@ -48,11 +48,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      console.log('AuthContext: Starting registration process');
       const response = await authService.register(email, password);
+      console.log('AuthContext: Registration successful, setting user');
       setUser(response.user);
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error in AuthContext:', error);
+      // More detailed error logging
+      if (error.response) {
+        console.error('Server response data:', error.response.data);
+        console.error('Server response status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
       throw error;
     } finally {
       setIsLoading(false);

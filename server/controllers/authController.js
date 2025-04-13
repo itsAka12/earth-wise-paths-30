@@ -14,22 +14,36 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
+    console.log('Register request received:', req.body);
     const { email, password } = req.body;
 
+    // Validate inputs
+    if (!email || !password) {
+      console.log('Missing email or password');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide email and password' 
+      });
+    }
+
     // Check if user exists
+    console.log('Checking if user exists:', email);
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      console.log('User already exists');
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
     // Create user
+    console.log('Creating new user');
     const user = await User.create({
       email,
       password,
     });
 
     if (user) {
+      console.log('User created successfully:', user._id);
       res.status(201).json({
         success: true,
         user: {
@@ -39,11 +53,13 @@ const registerUser = async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
+      console.log('Failed to create user');
       res.status(400).json({ success: false, message: 'Invalid user data' });
     }
   } catch (error) {
     console.error(`Error in registerUser: ${error.message}`);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error(error.stack);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
