@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { authService } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AuthForm = ({ type }) => {
   const [email, setEmail] = useState('');
@@ -14,12 +16,15 @@ const AuthForm = ({ type }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login, register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
     // Basic validation
     if (!email || !password) {
@@ -42,18 +47,36 @@ const AuthForm = ({ type }) => {
       return;
     }
 
-    // Mock authentication for demo purposes
-    // In a real app, this would be replaced with actual auth service calls
-    setTimeout(() => {
-      toast({
-        title: type === 'login' ? "Logged in successfully" : "Account created successfully",
-        description: "Welcome to EarthWise Paths!",
-      });
+    try {
+      if (type === 'login') {
+        // Call login function from AuthContext
+        await login(email, password);
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome to EarthWise Paths!",
+        });
+      } else {
+        // Call register function from AuthContext
+        await register(email, password);
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to EarthWise Paths!",
+        });
+      }
       
       // Redirect to dashboard after successful login/signup
       navigate('/dashboard');
+    } catch (err) {
+      console.error('Authentication error:', err);
+      setError(err?.response?.data?.message || 'Authentication failed. Please try again.');
+      toast({
+        title: "Error",
+        description: err?.response?.data?.message || 'Authentication failed. Please try again.',
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -151,6 +174,12 @@ const AuthForm = ({ type }) => {
               {isLoading ? 'Loading...' : type === 'login' ? 'Sign In' : 'Create Account'}
             </Button>
           </form>
+
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+              {error}
+            </div>
+          )}
 
           <div className="mt-6">
             <div className="relative">
