@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 
+// Make sure to use the correct server URL
 const API_URL = 'http://localhost:5000/api';
 
 // Create axios instance
@@ -37,12 +38,20 @@ export const authService = {
   },
   
   register: async (email: string, password: string) => {
-    const response = await api.post('/auth/register', { email, password });
-    if (response.data.token) {
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    try {
+      console.log('Attempting to register with:', { email });
+      const response = await api.post('/auth/register', { email, password });
+      console.log('Registration response:', response.data);
+      
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Registration error:', error.response?.data || error.message);
+      throw error;
     }
-    return response.data;
   },
   
   logout: () => {
